@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="{{ url_for('static', path='leaflet.js') }}"></script>
+    <script src="{{ url_for('static', path='jquery-3.7.1.min.js') }}"></script>
+    <script src="{{ url_for('static', path='bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', path='leaflet.awesome-markers.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', path='leaflet.css') }}"/>
+    <link rel="stylesheet" href="{{ url_for('static', path='bootstrap.min.css') }}"/>
+    <link rel="stylesheet" href="{{ url_for('static', path='bootstrap.min.css') }}"/>
+    <link rel="stylesheet" href="{{ url_for('static', path='all.min.css') }}"/>
+    <link rel="stylesheet" href="{{ url_for('static', path='leaflet.awesome-markers.css') }}"/>
+    <link rel="stylesheet" href="{{ url_for('static', path='leaflet.awesome.rotate.min.css') }}"/>
+
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_50092ec2d670a75813efe362d308cc46 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+    <script src="{{ url_for('static', path='leaflet.draw.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', path='leaflet.draw.css') }}"/>
+
+</head>
+<style>
+        #imageTable {
+              font-family: Arial, Helvetica, sans-serif;
+              border-collapse: collapse;
+              width: 100%;
+            }
+        #imageTable td, #customers th {
+              border: 1px solid #ddd;
+              padding: 8px;
+            }
+        #imageTable th {
+              padding-top: 12px;
+              padding-bottom: 12px;
+              text-align: left;
+              background-color: #04AA6D;
+              color: white;
+            }
+        #imageTable tr:nth-child(even){background-color: #f2f2f2;}
+
+        #imageTable tr:hover {background-color: #ddd;}
+.input-file-btn {
+	position: relative;
+	display: inline-block;
+	cursor: pointer;
+	outline: none;
+	text-decoration: none;
+	font-size: 14px;
+	vertical-align: middle;
+	color: rgb(255 255 255);
+	text-align: center;
+	border-radius: 4px;
+	background-color: #419152;
+	line-height: 22px;
+	height: 40px;
+	padding: 10px 20px;
+	box-sizing: border-box;
+	border: none;
+	margin: 0;
+	transition: background-color 0.2s;
+}
+    </style>
+<body>
+
+
+
+            <div class="folium-map" id="map_50092ec2d670a75813efe362d308cc46" ></div>
+
+    <table id="imageTable">
+        <tbody>
+            <tr>
+                <th>Выбрать</th>
+                <th>Lat</th>
+                <th>Lon</th>
+                <th>Text</th>
+                <th>Text</th>
+            </tr>
+        </tbody>
+    </table>
+            <br>
+            <br>
+<button onclick="downloadImages();" class="input-file-btn">Экспорт изображений</button>
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+
+<!--<script src="{{ url_for('static', path='main.js') }}"> </script>-->
+<script>
+function removeHTML(text){
+    let new_text = text.replace(/<div>\s*|\s*<\/div>/g, '').trim();
+    return new_text;
+}
+function downloadImages(){
+          var coordinates = []
+          var table = document.getElementById("imageTable");
+          for (var i = 1, row; row = table.rows[i]; i++) {
+            if (row.cells[0].getElementsByTagName("input")[0].checked){
+              coordinates.push({"lat": row.cells[1].innerText,
+                                  "lon": row.cells[2].innerText})
+                }
+            }
+
+          const jsonData = JSON.stringify(coordinates);
+          fetch('/export', {
+                  method: 'POST', // Use POST for sending data
+                  headers: {
+                    'Content-Type': 'application/json' // Specify JSON content type
+                  },
+                  body: jsonData
+                })
+                .then(response => {
+                  if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                  }
+                  return response.blob(); // Get the response as a Blob (binary data)
+                })
+                .then(blob => {
+                  const url = window.URL.createObjectURL(blob); // Create a temporary URL for the Blob
+
+                  // Create a link element (invisible)
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.setAttribute('download', `export-${Date.now()}.zip`); // Set a default filename
+
+                  // Simulate a click on the link to trigger download
+                  link.click();
+
+                  // Clean up the temporary URL (optional)
+                  window.URL.revokeObjectURL(url);
+                })
+                .catch(error => {
+                  console.error('Error:', error);
+                });
+
+        }
+        function isMarkerInsidePolygon(marker, poly) {
+    var inside = false;
+    var x = marker.getLatLng().lat, y = marker.getLatLng().lng;
+    for (var ii=0;ii<poly.getLatLngs().length;ii++){
+        var polyPoints = poly.getLatLngs()[ii];
+        for (var i = 0, j = polyPoints.length - 1; i < polyPoints.length; j = i++) {
+            var xi = polyPoints[i].lat, yi = polyPoints[i].lng;
+            var xj = polyPoints[j].lat, yj = polyPoints[j].lng;
+
+            var intersect = ((yi > y) != (yj > y))
+                && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+            if (intersect) inside = !inside;
+        }
+    }
+
+    return inside;
+};
+function tableImages(lat, lon, text) {
+
+            console.log(lat);
+            console.log(lon);
+            console.log(text);
+            var tbodyRef = document.getElementById('imageTable').getElementsByTagName('tbody')[0];
+            var newRow = tbodyRef.insertRow();
+
+            var checkBoxCell = newRow.insertCell();
+            var checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.checked = true;
+            checkBoxCell.appendChild(checkbox);
+
+            var latCell = newRow.insertCell();
+            var newLat = document.createTextNode(lat);
+            latCell.appendChild(newLat);
+
+            var lonCell = newRow.insertCell();
+            var newLon = document.createTextNode(lon);
+            lonCell.appendChild(newLon);
+
+            var textCell = newRow.insertCell();
+            var newText = document.createTextNode(text);
+            textCell.appendChild(newText);
+        }
+
+            var map_50092ec2d670a75813efe362d308cc46 = L.map(
+                "map_50092ec2d670a75813efe362d308cc46",
+                {
+                    center: [54.5, 21.1],
+                    crs: L.CRS.EPSG3857,
+                    zoom: 9,
+                    zoomControl: true,
+                    preferCanvas: false,
+                    drawControl: true
+                }
+            );
+            L.control.scale().addTo(map_50092ec2d670a75813efe362d308cc46);
+            map_50092ec2d670a75813efe362d308cc46.on(L.Draw.Event.DRAWSTOP, e => {
+                let drawnPolygon;
+
+                    // Iterate through each layer to find the drawn polygon
+                    e.target.eachLayer(layer => {
+                        if (layer instanceof L.Polygon) {
+                            drawnPolygon = layer;
+                        }
+                    });
+                if (drawnPolygon) {
+        // Iterate through each layer again to find markers
+        e.target.eachLayer(layer => {
+            if (layer instanceof L.Marker) {
+                var marker = layer;
+                var inside = isMarkerInsidePolygon(marker, drawnPolygon);
+                if (inside) {
+                    tableImages(marker.getLatLng().lat, marker.getLatLng().lng, removeHTML(marker._tooltip._content));
+                }
+            }
+        });
+    }
+});
+
+
+
+
+            var tile_layer_64b6e4c62e37c4918a07ad44981b607b = L.tileLayer(
+                "tiles/{z}/{x}/{y}.png",
+                {"attribution": "OpenStreetMap", "detectRetina": false, "maxNativeZoom": 14, "maxZoom": 14, "minZoom": 9, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
+            );
+
+
+            tile_layer_64b6e4c62e37c4918a07ad44981b607b.addTo(map_50092ec2d670a75813efe362d308cc46);
+
+             {% for record in data %}
+            var redDivIcon = L.divIcon({
+                    className: 'custom-div-icon',
+                    html: "<div style='background-color:{{record[-1]}}; width:5px; height:5px; border-radius:50%;'></div>",
+                    iconSize: [20, 20]
+                    });
+            var marker_{{loop.index}} = L.marker(
+                [{{ record[1] }}, {{record[2]}}],
+                {icon: redDivIcon}
+            ).addTo(map_50092ec2d670a75813efe362d308cc46);
+
+
+            marker_{{loop.index}}.bindTooltip(
+                `<div>
+                     {{record[0]}}
+                 </div>`,
+                {"sticky": true}
+            );
+
+            {% endfor %}
+
+
+
+            var options = {
+              position: "topleft",
+              draw: {"circle": false, "circlemarker": false, "marker": false, "polygon": false, "polyline": false, "rectangle": true},
+              edit: {"cancel": false, "edit": true, "remove": true, "save": true},
+            }
+            // FeatureGroup is to store editable layers.
+            var drawnItems_draw_control_426da795ecd07252d7cac96e37965514 = new L.featureGroup().addTo(
+                map_50092ec2d670a75813efe362d308cc46
+            );
+            options.edit.featureGroup = drawnItems_draw_control_426da795ecd07252d7cac96e37965514;
+            var draw_control_426da795ecd07252d7cac96e37965514 = new L.Control.Draw(
+                options
+            ).addTo( map_50092ec2d670a75813efe362d308cc46 );
+            map_50092ec2d670a75813efe362d308cc46.on(L.Draw.Event.CREATED, function(e) {
+                var layer = e.layer,
+                    type = e.layerType;
+                var coords = JSON.stringify(layer.toGeoJSON());
+                var div = document.createElement("div");
+                div.setAttribute("class", "rectangle_coords");
+                div.setAttribute("coords", coords);
+                document.body.append(div);
+
+                layer.on('click', function() {
+                    alert(coords);
+                    console.log(coords);
+                });
+                drawnItems_draw_control_426da795ecd07252d7cac96e37965514.addLayer(layer);
+             });
+            map_50092ec2d670a75813efe362d308cc46.on('draw:created', function(e) {
+                drawnItems_draw_control_426da795ecd07252d7cac96e37965514.addLayer(e.layer);
+            });
+
+
+</script>
+
+
+</html>
