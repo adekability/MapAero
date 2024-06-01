@@ -100,6 +100,9 @@
             <br>
             <br>
 <button onclick="downloadImages();" class="input-file-btn">Экспорт изображений</button>
+
+{% include "filter.html" %}
+
 </body>
 
 <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
@@ -244,23 +247,25 @@ function tableImages(lat, lon, text) {
             tile_layer_64b6e4c62e37c4918a07ad44981b607b.addTo(map_50092ec2d670a75813efe362d308cc46);
 
              {% for record in data %}
-            var redDivIcon = L.divIcon({
-                    className: 'custom-div-icon',
-                    html: "<div style='background-color:{{record[-1]}}; width:5px; height:5px; border-radius:50%;'></div>",
-                    iconSize: [20, 20]
+             console.log('images/'+'{{record[-2]}}'.replace("rgb(", "").replaceAll(",", "").replace(")", "")+'.png');
+            var greenIcon = L.icon({
+                    iconUrl: '{{ url_for('static', path='images/'+record[-2].replace("rgb(", "").replace(",", "").replace(")", "")+'.png') }}',
+                    transparent: true,
+                    iconSize:     [38, 38], // size of the icon
+                    shadowSize:   [50, 64], // size of the shadow
+                    iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+                    shadowAnchor: [4, 62],  // the same for the shadow
+                    popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
                     });
             var marker_{{loop.index}} = L.marker(
                 [{{ record[1] }}, {{record[2]}}],
-                {icon: redDivIcon}
+                {icon: greenIcon}
             ).addTo(map_50092ec2d670a75813efe362d308cc46);
 
 
-            marker_{{loop.index}}.bindTooltip(
-                `<div>
-                     {{record[0]}}
-                 </div>`,
-                {"sticky": true}
-            );
+            marker_{{ loop.index }}.bindTooltip("<p>{{record[0]}}</p><img src='http://127.0.0.1:8000/images/{{record[0]}}' width='100' height='100'>");
+
+
 
             {% endfor %}
 

@@ -1,0 +1,92 @@
+    <style>
+        .dropdown-check-list {
+  display: inline-block;
+}
+
+.dropdown-check-list .anchor {
+  position: relative;
+  cursor: pointer;
+  display: inline-block;
+  padding: 5px 50px 5px 10px;
+  border: 1px solid #ccc;
+}
+
+.dropdown-check-list .anchor:after {
+  position: absolute;
+  content: "";
+  border-left: 2px solid black;
+  border-top: 2px solid black;
+  padding: 5px;
+  right: 10px;
+  top: 20%;
+  -moz-transform: rotate(-135deg);
+  -ms-transform: rotate(-135deg);
+  -o-transform: rotate(-135deg);
+  -webkit-transform: rotate(-135deg);
+  transform: rotate(-135deg);
+}
+
+.dropdown-check-list .anchor:active:after {
+  right: 8px;
+  top: 21%;
+}
+
+.dropdown-check-list ul.items {
+  padding: 2px;
+  display: none;
+  margin: 0;
+  border: 1px solid #ccc;
+  border-top: none;
+}
+
+.dropdown-check-list ul.items li {
+  list-style: none;
+}
+
+.dropdown-check-list.visible .anchor {
+  color: #0094ff;
+}
+
+.dropdown-check-list.visible .items {
+  display: block;
+}
+    </style>
+
+<div id="list1" class="dropdown-check-list" tabindex="100">
+  <span class="anchor">Выберите загрузки</span>
+  <ul class="items">
+      {% for record in dates %}
+        <li><input type="checkbox" class="record-checkbox" data-record="{{ record[0] }}"/>Загрузка за {{ record[0] }}</li>
+      {% endfor %}
+  </ul>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Select all checkboxes with the class 'record-checkbox'
+    var checkboxes = document.querySelectorAll(".record-checkbox");
+    var datetimes = [];
+    // Iterate over each checkbox and attach the event listener
+    checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener("change", function(event) {
+            // This function will be called whenever the checkbox is checked/unchecked
+            var record = event.target.getAttribute("data-record");
+            if (event.target.checked) {
+                datetimes.append(record);
+                console.log("Checkbox for record " + record + " is checked.");
+                // Add your custom logic here
+            } else {
+                console.log("Checkbox for record " + record + " is unchecked.");
+                // Add your custom logic here
+            }
+        });
+    });
+
+    var checkList = document.getElementById('list1');
+checkList.getElementsByClassName('anchor')[0].onclick = function(evt) {
+  if (checkList.classList.contains('visible'))
+    checkList.classList.remove('visible');
+  else
+    checkList.classList.add('visible');
+}
+</script>
