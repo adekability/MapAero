@@ -51,12 +51,36 @@
   display: block;
 }
     </style>
+<script>
+    function showLoad(color){
+        {% set break = False %}
+        {% for record in data %}
+            {% if not break %}
+                {% set break = True %}
+                if ('{{ record[3] }}' === color) {
+                map_50092ec2d670a75813efe362d308cc46.setView([{{record[1]}}, {{record[2]}}]);
+                }
+            {% endif %}
+        {% endfor %}
+        {% set break = False %}
 
+    }
+</script>
 <div id="list1" class="dropdown-check-list" tabindex="100">
   <span class="anchor">Выберите загрузки</span>
   <ul class="items">
       {% for record in dates %}
-        <li><input type="checkbox" class="record-checkbox" data-record="{{ record[0] }}" checked/>Загрузка за {{ record[0] }} <img width="30" height="30" src="{{ url_for('static', path='images/'+record[1].replace('rgb(', '').replace(',', '').replace(')', '')+'.png') }}"  style="background-color: white !important;"></li>
+        <li>
+            <input type="checkbox"
+                   class="record-checkbox"
+                   data-record="{{ record[0] }}"
+                   checked/>Загрузка за {{ record[0] }}
+            <button onclick="showLoad({{record}})" value="Показать">
+                            <img width="30"
+                                 height="30"
+                                 src="{{ url_for('static', path='images/'+record[1].replace('rgb(', '').replace(',', '').replace(')', '')+'.png') }}"
+                                 style="background-color: white !important;"/> Показать</button>
+        </li>
       {% endfor %}
   </ul>
 </div>
@@ -86,11 +110,9 @@ document.addEventListener("DOMContentLoaded", function() {
             var record = event.target.getAttribute("data-record");
             if (event.target.checked) {
                 addMark(record);
-                console.log("Checkbox for record " + record + " is checked.");
                 // Add your custom logic here
             } else {
                 removeMark(record);
-                console.log("Checkbox for record " + record + " is unchecked.");
                 // Add your custom logic here
             }
         });
