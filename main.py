@@ -6,12 +6,13 @@ from services import get_zipfile
 from datetime import datetime
 import uvicorn
 from services import generate_color, convert_color
-import os
 import sys
 from fastapi.staticfiles import StaticFiles
 import datetime
-from typing import List
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 os.environ['GDAL_DATA'] = os.path.join(f'{os.sep}'.join(sys.executable.split(os.sep)[:-1]), 'Library', 'share', 'gdal')
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="./static"), name="static")
@@ -32,9 +33,11 @@ async def main(request: Request):
 async def root(request: Request):
     records = fetch_all_records()
     dates = fetch_distinct_dates()
+    host = os.getenv('HOST')
     context = {"request": request,
                "data": records,
-               "dates": dates}
+               "dates": dates,
+               "host": host}
     return templates.TemplateResponse("original.html", context=context)
 
 
@@ -99,8 +102,8 @@ async def export_image(request: Request,
 
 
 def run_app():
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
