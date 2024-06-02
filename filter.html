@@ -56,32 +56,46 @@
   <span class="anchor">Выберите загрузки</span>
   <ul class="items">
       {% for record in dates %}
-        <li><input type="checkbox" class="record-checkbox" data-record="{{ record[0] }}"/>Загрузка за {{ record[0] }}</li>
+        <li><input type="checkbox" class="record-checkbox" data-record="{{ record[0] }}" checked/>Загрузка за {{ record[0] }}</li>
       {% endfor %}
   </ul>
 </div>
 
 <script>
+    function addMark(datetime){
+        {% for record in data %}
+            if ('{{ record[4] }}' === datetime) {
+            map_50092ec2d670a75813efe362d308cc46.addLayer(marker_{{ record[5] }});
+        }
+        {% endfor %}
+    }
+    function removeMark(datetime){
+    {% for record in data %}
+        if ('{{ record[4] }}' === datetime) {
+            map_50092ec2d670a75813efe362d308cc46.removeLayer(marker_{{ record[5] }});
+        }
+        {% endfor %}
+    }
 document.addEventListener("DOMContentLoaded", function() {
     // Select all checkboxes with the class 'record-checkbox'
     var checkboxes = document.querySelectorAll(".record-checkbox");
-    var datetimes = [];
     // Iterate over each checkbox and attach the event listener
     checkboxes.forEach(function(checkbox) {
         checkbox.addEventListener("change", function(event) {
             // This function will be called whenever the checkbox is checked/unchecked
             var record = event.target.getAttribute("data-record");
             if (event.target.checked) {
-                datetimes.append(record);
+                addMark(record);
                 console.log("Checkbox for record " + record + " is checked.");
                 // Add your custom logic here
             } else {
+                removeMark(record);
                 console.log("Checkbox for record " + record + " is unchecked.");
                 // Add your custom logic here
             }
         });
     });
-
+});
     var checkList = document.getElementById('list1');
 checkList.getElementsByClassName('anchor')[0].onclick = function(evt) {
   if (checkList.classList.contains('visible'))

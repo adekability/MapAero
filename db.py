@@ -25,7 +25,6 @@ def create_record(filename, lat, lon, file, color, current_datetime):
         cursor.close()
         conn.close()
 
-
 def delete_record(filename):
     """
     Delete a record from the main table by filename.
@@ -102,7 +101,7 @@ def fetch_all_records(image=False):
     conn = sqlite3.connect(main_db)
     cursor = conn.cursor()
     if not image:
-        cursor.execute('''SELECT filename, lat, lon, color, datetime FROM main''')
+        cursor.execute('''SELECT filename, lat, lon, color, datetime, id FROM main''')
     else:
         cursor.execute('''SELECT * FROM main''')
     records = cursor.fetchall()
@@ -127,7 +126,7 @@ def fetch_records_by_datetime(datetimes, image=False):
     conn = sqlite3.connect(main_db)
     cursor = conn.cursor()
     if not image:
-        cursor.execute('SELECT filename, lat, lon, color, datetime FROM main WHERE datetime (%s)' % ','.join('?' * len(datetimes)), datetimes)
+        cursor.execute('SELECT filename, lat, lon, color, datetime, id FROM main WHERE datetime (%s)' % ','.join('?' * len(datetimes)), datetimes)
     else:
         cursor.execute('SELECT * FROM main WHERE datetime (%s)' % ','.join('?' * len(datetimes)), datetimes)
     records = cursor.fetchall()
