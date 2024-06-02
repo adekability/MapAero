@@ -171,7 +171,7 @@ def fetch_distinct_dates():
     main_db = resource_path('main.db')
     conn = sqlite3.connect(main_db)
     cursor = conn.cursor()
-    cursor.execute('''SELECT DISTINCT datetime FROM main''')
+    cursor.execute('''SELECT datetime, color from main group by datetime;''')
     records = cursor.fetchall()
     if records:
         cursor.close()
