@@ -8,8 +8,8 @@ a = Analysis(
     datas = [
     ('main.db', '.'),
     ('main.html', '.'),
+    ('filter.html', '.'),
     ('original.html', '.'),
-    ('C:\\Users\\adekability\\PycharmProjects\\MapConverter\\.venv\\Lib\\site-packages\\plotly', 'plotly'),
     ('static/images/layers.png', '.'),
     ('static/images/layers-2x.png', '.'),
     ('static/images/marker-icon.png', '.'),
