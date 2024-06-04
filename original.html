@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="{{ url_for('static', path='leaflet.css') }}"/>
     <link rel="stylesheet" href="{{ url_for('static', path='bootstrap.min.css') }}"/>
     <link rel="stylesheet" href="{{ url_for('static', path='bootstrap.min.css') }}"/>
+    <link rel="stylesheet" href="{{ url_for('static', path='font-awesome.min.css') }}"/>
     <link rel="stylesheet" href="{{ url_for('static', path='all.min.css') }}"/>
     <link rel="stylesheet" href="{{ url_for('static', path='leaflet.awesome-markers.css') }}"/>
     <link rel="stylesheet" href="{{ url_for('static', path='leaflet.awesome.rotate.min.css') }}"/>
@@ -40,6 +41,10 @@
 
 </head>
 <style>
+    .stylish {
+    background-color: orange;
+    transition: background-color 1s;
+}
         #imageTable {
               font-family: Arial, Helvetica, sans-serif;
               border-collapse: collapse;
@@ -116,6 +121,40 @@
 
 <!--<script src="{{ url_for('static', path='main.js') }}"> </script>-->
 <script>
+
+
+function scrollOn(e){
+    var table = document.getElementById("imageTable");
+    var rows = document.querySelectorAll('#imageTable tr');
+    lat = this.getLatLng()['lat']
+    lng = this.getLatLng()['lng']
+    // line is zero-based
+    // line is the row number that you want to see into view after scroll
+    for (var i = 0; i < rows.length; i++) {
+
+        tds = rows[i].getElementsByTagName("td");
+
+        if (tds.length == 0){
+            continue;
+        }
+        td_lat = tds[1].textContent;
+        td_lng = tds[2].textContent;
+        if (lat == td_lat && lng == td_lng){
+            console.log(rows[i]);
+            rows[i].scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+        });
+            rows[i].classList.add('stylish');
+
+            setTimeout(function() {
+                rows[i].classList.remove('stylish');
+            }, 1000);
+            break;
+        }
+
+    }
+}
 function removeHTML(text){
     let new_text = text.replace(/<div>\s*|\s*<\/div>/g, '').trim();
     return new_text;
@@ -260,7 +299,8 @@ function tableImages(lat, lon, text) {
                     shadowSize:   [50, 64], // size of the shadow
                     iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
                     shadowAnchor: [4, 62],  // the same for the shadow
-                    popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+                    popupAnchor:  [-3, -76], // point from which the popup should open relative to the iconAnchor
+                    opacity: 0.5
                     });
             var marker_{{record[5]}} = L.marker(
                 [{{ record[1] }}, {{record[2]}}],
@@ -269,7 +309,7 @@ function tableImages(lat, lon, text) {
 
 
             marker_{{ record[5] }}.bindTooltip("<p>{{record[0]}}</p><img src='http://{{host}}:8000/images/{{record[0]}}' width='100' height='100'>");
-
+            marker_{{ record[5] }}.on('mouseover', scrollOn);
 
 
             {% endfor %}
