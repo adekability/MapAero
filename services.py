@@ -17,7 +17,7 @@ def get_zipfile(records):
     b = io.BytesIO()
     zf = zipfile.ZipFile(b, mode='w')
     for record in records:
-        zf.writestr(record[0], record[-2])
+        zf.writestr(record[0], record[3])
     zf.close()
     b.seek(0)
     return b

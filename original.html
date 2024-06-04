@@ -43,16 +43,20 @@
         #imageTable {
               font-family: Arial, Helvetica, sans-serif;
               border-collapse: collapse;
-              width: 100%;
+              width: 33%;
+              overflow-y:scroll;
+              height:600px;
+              display:block;
             }
-        #imageTable td, #customers th {
+        #imageTable td, th {
+              text-align: center;
               border: 1px solid #ddd;
               padding: 8px;
             }
         #imageTable th {
               padding-top: 12px;
               padding-bottom: 12px;
-              text-align: left;
+              text-align: center;
               background-color: #04AA6D;
               color: white;
             }
@@ -81,27 +85,30 @@
 }
     </style>
 <body>
+<br>
+<button onclick="downloadImages();" class="input-file-btn">Экспорт изображений</button>
 
+{% include "filter.html" %}
+<br>
+<br>
+            <div class="folium-map" id="map_50092ec2d670a75813efe362d308cc46" style="width: 1000px;
+                                                                                     height: 600px;
+                                                                                     float: left;
+                                                                                     border: 1px solid black;" ></div>
 
-
-            <div class="folium-map" id="map_50092ec2d670a75813efe362d308cc46" ></div>
-
-    <table id="imageTable">
+    <table id="imageTable" style="visibility:hidden">
         <tbody>
             <tr>
                 <th>Выбрать</th>
                 <th>Lat</th>
                 <th>Lon</th>
-                <th>Text</th>
-                <th>Text</th>
+                <th>Файл</th>
             </tr>
         </tbody>
     </table>
             <br>
             <br>
-<button onclick="downloadImages();" class="input-file-btn">Экспорт изображений</button>
 
-{% include "filter.html" %}
 
 </body>
 
@@ -174,8 +181,9 @@ function downloadImages(){
     return inside;
 };
 function tableImages(lat, lon, text) {
-
-            var tbodyRef = document.getElementById('imageTable').getElementsByTagName('tbody')[0];
+            tab = document.getElementById('imageTable')
+            tab.style="visibility:visible"
+            var tbodyRef = tab.getElementsByTagName('tbody')[0];
             var newRow = tbodyRef.insertRow();
 
             var checkBoxCell = newRow.insertCell();
@@ -193,7 +201,10 @@ function tableImages(lat, lon, text) {
             lonCell.appendChild(newLon);
 
             var textCell = newRow.insertCell();
-            var newText = document.createTextNode(text);
+            var match = text.matchAll('(?<=<p>)(.*?)(?=<\/p>)');
+
+
+            var newText = document.createTextNode(match.next().value[0]);
             textCell.appendChild(newText);
         }
 
@@ -231,9 +242,6 @@ function tableImages(lat, lon, text) {
         });
     }
 });
-
-
-
 
             var tile_layer_64b6e4c62e37c4918a07ad44981b607b = L.tileLayer(
                 "tiles/{z}/{x}/{y}.png",

@@ -3,7 +3,6 @@ from fastapi.responses import RedirectResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 from db import *
 from services import get_zipfile
-from datetime import datetime
 import uvicorn
 from services import generate_color, convert_color
 import sys
@@ -32,7 +31,7 @@ async def main(request: Request):
 @app.get("/plot")
 async def root(request: Request):
     records = fetch_all_records()
-    dates = fetch_distinct_dates()
+    dates = fetch_distinct_names()
     host = os.getenv('HOST')
     context = {"request": request,
                "data": records,
@@ -43,10 +42,12 @@ async def root(request: Request):
 
 @app.post("/render")
 async def render(request: Request,
+                 load_name: str = Form(...),
                  tableData: str = Form(...),
-                 image_files: list[UploadFile] = File(...)):
+                 image_files: list[UploadFile] = File(...),
+                 ):
     tableData = eval(tableData)
-
+    print(load_name)
     lat_index = tableData[0].index("Lat")
     lon_index = tableData[0].index("Lon")
     filename_index = tableData[0].index("File")
@@ -63,7 +64,8 @@ async def render(request: Request,
                       lon=str(float(tableData[record][lon_index])),
                       file=image_file,
                       color=color_str,
-                      current_datetime=current_datetime)
+                      current_datetime=current_datetime,
+                      load_name=load_name)
     return RedirectResponse(request.url_for('root'),
                             status_code=status.HTTP_303_SEE_OTHER)
 
@@ -80,7 +82,7 @@ async def export(request: Request):
             records.append(record)
 
     zipfile = get_zipfile(records)
-    zip_filename = datetime.now().strftime("%Y-%m-%d %H-%M-%S")
+    zip_filename = datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S")
     response = Response(
         content=zipfile.read(),
         media_type="application/x-zip-compressed",

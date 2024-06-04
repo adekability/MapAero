@@ -1,13 +1,14 @@
     <style>
-        .dropdown-check-list {
+ .dropdown-check-list {
   display: inline-block;
+  position: relative; /* Add this line */
 }
 
 .dropdown-check-list .anchor {
   position: relative;
   cursor: pointer;
   display: inline-block;
-  padding: 5px 50px 5px 10px;
+  padding: 5px 100px 5px 10px;
   border: 1px solid #ccc;
 }
 
@@ -19,10 +20,6 @@
   padding: 5px;
   right: 10px;
   top: 20%;
-  -moz-transform: rotate(-135deg);
-  -ms-transform: rotate(-135deg);
-  -o-transform: rotate(-135deg);
-  -webkit-transform: rotate(-135deg);
   transform: rotate(-135deg);
 }
 
@@ -37,6 +34,9 @@
   margin: 0;
   border: 1px solid #ccc;
   border-top: none;
+  position: absolute; /* Add this line */
+  background-color: white; /* Add this line to ensure the background is white */
+  z-index: 1000; /* Add this line to ensure it appears above other elements */
 }
 
 .dropdown-check-list ul.items li {
@@ -74,8 +74,8 @@
             <input type="checkbox"
                    class="record-checkbox"
                    data-record="{{ record[0] }}"
-                   checked/>Загрузка за {{ record[0] }}
-            <button onclick="showLoad({{record}})" value="Показать">
+                   checked/>{{ record[0] }}
+            <button onclick="showLoad({{record}})" value="Показать" style="border: 1px solid black; border-radius: 5px;">
                             <img width="30"
                                  height="30"
                                  src="{{ url_for('static', path='images/'+record[1].replace('rgb(', '').replace(',', '').replace(')', '')+'.png') }}"
@@ -86,17 +86,19 @@
 </div>
 
 <script>
-    function addMark(datetime){
+    function addMark(id_el){
         {% for record in data %}
-            if ('{{ record[4] }}' === datetime) {
+            if ('{{ record[6] }}' === id_el) {
             map_50092ec2d670a75813efe362d308cc46.addLayer(marker_{{ record[5] }});
+            console.log('adding ' + {{record[5]}} + ' marker');
         }
         {% endfor %}
     }
-    function removeMark(datetime){
+    function removeMark(id_el){
     {% for record in data %}
-        if ('{{ record[4] }}' === datetime) {
+        if ('{{ record[6] }}' === id_el) {
             map_50092ec2d670a75813efe362d308cc46.removeLayer(marker_{{ record[5] }});
+            console.log('removing ' + {{record[5]}} + ' marker');
         }
         {% endfor %}
     }

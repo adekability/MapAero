@@ -2,7 +2,7 @@ import sqlite3
 from services import resource_path
 
 
-def create_record(filename, lat, lon, file, color, current_datetime):
+def create_record(filename, lat, lon, file, color, current_datetime, load_name):
     main_db = resource_path('main.db')
     conn = sqlite3.connect(main_db)
     cursor = conn.cursor()
@@ -15,7 +15,7 @@ def create_record(filename, lat, lon, file, color, current_datetime):
     - lon: float, longitude value
     """
     try:
-        cursor.execute('''INSERT INTO main (filename, lat, lon, image, color, datetime) VALUES (?, ?, ?, ?, ?, ?)''', (filename, lat, lon, file, color, current_datetime))
+        cursor.execute('''INSERT INTO main (filename, lat, lon, image, color, datetime, name) VALUES (?, ?, ?, ?, ?, ?, ?)''', (filename, lat, lon, file, color, current_datetime, load_name))
         conn.commit()
         print("Record created successfully!")
         cursor.close()
@@ -101,7 +101,7 @@ def fetch_all_records(image=False):
     conn = sqlite3.connect(main_db)
     cursor = conn.cursor()
     if not image:
-        cursor.execute('''SELECT filename, lat, lon, color, datetime, id FROM main''')
+        cursor.execute('''SELECT filename, lat, lon, color, datetime, id, name FROM main''')
     else:
         cursor.execute('''SELECT * FROM main''')
     records = cursor.fetchall()
@@ -161,7 +161,7 @@ def fetch_distinct_colors():
         cursor.close()
         conn.close()
         return []
-def fetch_distinct_dates():
+def fetch_distinct_names():
     """
     Fetch all distinct colors from the main table.
 
@@ -171,7 +171,7 @@ def fetch_distinct_dates():
     main_db = resource_path('main.db')
     conn = sqlite3.connect(main_db)
     cursor = conn.cursor()
-    cursor.execute('''SELECT datetime, color from main group by datetime;''')
+    cursor.execute('''SELECT name, color from main group by name;''')
     records = cursor.fetchall()
     if records:
         cursor.close()

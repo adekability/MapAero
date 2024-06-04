@@ -30,7 +30,7 @@ a = Analysis(
     ('static/leaflet.draw.js', '.'),
     ('static/main.js', '.'),
 ],
-    hiddenimports=['fastapi', 'fiona._shim'],
+    hiddenimports=['fastapi', 'fiona._shim', 'dotenv'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
