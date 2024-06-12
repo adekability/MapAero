@@ -12,14 +12,17 @@
     <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
     <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
     <script src="{{ url_for('static', path='leaflet.js') }}"></script>
+    <script src="https://unpkg.com/leaflet.pm@latest/dist/leaflet.pm.min.js"></script>
+
+
     <script src="{{ url_for('static', path='jquery-3.7.1.min.js') }}"></script>
     <script src="{{ url_for('static', path='bootstrap.bundle.min.js') }}"></script>
     <script src="{{ url_for('static', path='leaflet.awesome-markers.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('static', path='leaflet.css') }}"/>
     <link rel="stylesheet" href="{{ url_for('static', path='bootstrap.min.css') }}"/>
     <link rel="stylesheet" href="{{ url_for('static', path='bootstrap.min.css') }}"/>
-    <link rel="stylesheet" href="{{ url_for('static', path='font-awesome.min.css') }}"/>
     <link rel="stylesheet" href="{{ url_for('static', path='all.min.css') }}"/>
+    <link rel="stylesheet" href="{{ url_for('static', path='leaflet.pm.css') }}"/>
     <link rel="stylesheet" href="{{ url_for('static', path='leaflet.awesome-markers.css') }}"/>
     <link rel="stylesheet" href="{{ url_for('static', path='leaflet.awesome.rotate.min.css') }}"/>
 
@@ -258,6 +261,37 @@ function tableImages(lat, lon, text) {
                     drawControl: true
                 }
             );
+
+var options = {
+  position: 'bottomright', // toolbar position, options are 'topleft', 'topright', 'bottomleft', 'bottomright'
+  drawMarker: false, // adds button to draw markers
+  drawPolyline: false, // adds button to draw a polyline
+  drawRectangle: false, // adds button to draw a rectangle
+  drawPolygon: false, // adds button to draw a polygon
+  drawCircle: false, // adds button to draw a cricle
+  cutPolygon: false, // adds button to cut a hole in a polygon
+  editMode: false, // adds button to toggle edit mode for all layers
+  removalMode: true, // adds a button to remove layers
+};
+
+// add leaflet.pm controls to the map
+map_50092ec2d670a75813efe362d308cc46.pm.addControls(options);
+// If you want to listen for removal on the entire map
+map_50092ec2d670a75813efe362d308cc46.on({
+   'pm:remove': function(e) {
+            tab = document.getElementById('imageTable')
+            for(var i = 1;i<tab.rows.length;){tab.deleteRow(i);}
+            tab.style="visibility:hidden"
+        },
+    'pm:drawstart': function(e) {
+            console.log('drawstart');
+    },
+    'pm:drawend': function(e) {
+            console.log('drawend');
+    }
+});
+
+
             L.control.scale().addTo(map_50092ec2d670a75813efe362d308cc46);
             map_50092ec2d670a75813efe362d308cc46.on(L.Draw.Event.DRAWSTOP, e => {
                 let drawnPolygon;
@@ -317,10 +351,11 @@ function tableImages(lat, lon, text) {
 
 
             var options = {
-              position: "topleft",
+              position: "topright",
               draw: {"circle": false, "circlemarker": false, "marker": false, "polygon": false, "polyline": false, "rectangle": true},
               edit: {"cancel": false, "edit": true, "remove": true, "save": true},
             }
+
             // FeatureGroup is to store editable layers.
             var drawnItems_draw_control_426da795ecd07252d7cac96e37965514 = new L.featureGroup().addTo(
                 map_50092ec2d670a75813efe362d308cc46

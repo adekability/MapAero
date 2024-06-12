@@ -25,6 +25,8 @@ a = Analysis(
     ('static/leaflet.awesome.rotate.min.css', '.'),
     ('static/leaflet.awesome-markers.css', '.'),
     ('static/leaflet.awesome-markers.js', '.'),
+    ('static/leaflet.pm.min.js', '.'),
+    ('static/leaflet.pm.css', '.'),
     ('static/leaflet.css', '.'),
     ('static/leaflet.draw.css', '.'),
     ('static/leaflet.draw.js', '.'),
